@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices.JavaScript;
 using Sudoku.Shared;
 
 namespace CustomDlxLib
@@ -6,7 +7,7 @@ namespace CustomDlxLib
     {
         private SudokuGrid s;
         private ColumnNode root;
-        private LinkedList<Node> solution = new LinkedList<Node>();
+        private LinkedList<Node> solution = [];
 
         public CustomDlx(SudokuGrid s)
         {
@@ -15,8 +16,15 @@ namespace CustomDlxLib
 
         public void Solve()
         {
-            init();
-            search();
+            // var start = DateTime.Now;
+            Init();
+            // var initTime = (DateTime.Now - start).TotalMilliseconds;
+            
+            // start = DateTime.Now;
+            Search();
+            // var searchTime = (DateTime.Now - start).TotalMilliseconds;
+            
+            // start = DateTime.Now;
             foreach (Node node in solution)
             {
                 int value = node.RowIndex % 9;
@@ -24,9 +32,13 @@ namespace CustomDlxLib
                 int j = node.RowIndex / 81;
                 s.Cells[i, j] = value + 1;
             }
+            // var convertTime = (DateTime.Now - start).TotalMilliseconds;
+
+            // using var file = new StreamWriter("custom_times.csv", true);
+            // file.WriteLine($"{initTime},{searchTime},{convertTime}");
         }
 
-        public void init()
+        private void Init()
         {
             root = new ColumnNode(0);
             root.Left = root;
@@ -67,54 +79,54 @@ namespace CustomDlxLib
 
                     if (value >= 0)
                     {
-                        var RCColumnNode = columnsNodes[singleColumnIndex];
-                        var RNColumnNode = columnsNodes[rowNumberConstraintIndex + value];
-                        var CNColumnNode = columnsNodes[columnNumberConstraintIndex + value];
-                        var BNColumnNode = columnsNodes[boxNumberConstraintIndex + value];
+                        var rcColumnNode = columnsNodes[singleColumnIndex];
+                        var rnColumnNode = columnsNodes[rowNumberConstraintIndex + value];
+                        var cnColumnNode = columnsNodes[columnNumberConstraintIndex + value];
+                        var bnColumnNode = columnsNodes[boxNumberConstraintIndex + value];
 
-                        RCColumnNode.Size++;
-                        RNColumnNode.Size++;
-                        CNColumnNode.Size++;
-                        BNColumnNode.Size++;
+                        rcColumnNode.Size++;
+                        rnColumnNode.Size++;
+                        cnColumnNode.Size++;
+                        bnColumnNode.Size++;
 
 
                         // always 4 1s in the row RC, RN, CN, BN
-                        var RCNode = new Node(RCColumnNode, rowIndex);
-                        var RNNode = new Node(RNColumnNode, rowIndex);
-                        var CNNode = new Node(CNColumnNode, rowIndex);
-                        var BNNode = new Node(BNColumnNode, rowIndex);
+                        var rcNode = new Node(rcColumnNode, rowIndex);
+                        var rnNode = new Node(rnColumnNode, rowIndex);
+                        var cnNode = new Node(cnColumnNode, rowIndex);
+                        var bnNode = new Node(bnColumnNode, rowIndex);
 
-                        RCNode.Left = BNNode;
-                        RCNode.Right = RNNode;
+                        rcNode.Left = bnNode;
+                        rcNode.Right = rnNode;
 
-                        RNNode.Left = RCNode;
-                        RNNode.Right = CNNode;
+                        rnNode.Left = rcNode;
+                        rnNode.Right = cnNode;
 
-                        CNNode.Left = RNNode;
-                        CNNode.Right = BNNode;
+                        cnNode.Left = rnNode;
+                        cnNode.Right = bnNode;
 
-                        BNNode.Left = CNNode;
-                        BNNode.Right = RCNode;
+                        bnNode.Left = cnNode;
+                        bnNode.Right = rcNode;
 
-                        RCNode.Down = RCColumnNode;
-                        RCNode.Up = RCColumnNode.Up;
-                        RCColumnNode.Up.Down = RCNode;
-                        RCColumnNode.Up = RCNode;
+                        rcNode.Down = rcColumnNode;
+                        rcNode.Up = rcColumnNode.Up;
+                        rcColumnNode.Up.Down = rcNode;
+                        rcColumnNode.Up = rcNode;
 
-                        RNNode.Down = RNColumnNode;
-                        RNNode.Up = RNColumnNode.Up;
-                        RNColumnNode.Up.Down = RNNode;
-                        RNColumnNode.Up = RNNode;
+                        rnNode.Down = rnColumnNode;
+                        rnNode.Up = rnColumnNode.Up;
+                        rnColumnNode.Up.Down = rnNode;
+                        rnColumnNode.Up = rnNode;
 
-                        CNNode.Down = CNColumnNode;
-                        CNNode.Up = CNColumnNode.Up;
-                        CNColumnNode.Up.Down = CNNode;
-                        CNColumnNode.Up = CNNode;
+                        cnNode.Down = cnColumnNode;
+                        cnNode.Up = cnColumnNode.Up;
+                        cnColumnNode.Up.Down = cnNode;
+                        cnColumnNode.Up = cnNode;
 
-                        BNNode.Down = BNColumnNode;
-                        BNNode.Up = BNColumnNode.Up;
-                        BNColumnNode.Up.Down = BNNode;
-                        BNColumnNode.Up = BNNode;
+                        bnNode.Down = bnColumnNode;
+                        bnNode.Up = bnColumnNode.Up;
+                        bnColumnNode.Up.Down = bnNode;
+                        bnColumnNode.Up = bnNode;
                     }
                     else
                     {
@@ -122,62 +134,62 @@ namespace CustomDlxLib
                         {
                             rowIndex = 81 * j + 9 * i + d;
 
-                            var RCColumnNode = columnsNodes[singleColumnIndex];
-                            var RNColumnNode = columnsNodes[rowNumberConstraintIndex + d];
-                            var CNColumnNode = columnsNodes[columnNumberConstraintIndex + d];
-                            var BNColumnNode = columnsNodes[boxNumberConstraintIndex + d];
+                            var rcColumnNode = columnsNodes[singleColumnIndex];
+                            var rnColumnNode = columnsNodes[rowNumberConstraintIndex + d];
+                            var cnColumnNode = columnsNodes[columnNumberConstraintIndex + d];
+                            var bnColumnNode = columnsNodes[boxNumberConstraintIndex + d];
 
-                            RCColumnNode.Size++;
-                            RNColumnNode.Size++;
-                            CNColumnNode.Size++;
-                            BNColumnNode.Size++;
+                            rcColumnNode.Size++;
+                            rnColumnNode.Size++;
+                            cnColumnNode.Size++;
+                            bnColumnNode.Size++;
 
                             // always 4 1s in the row RC, RN, CN, BN
-                            var RCNode = new Node(RCColumnNode, rowIndex);
-                            var RNNode = new Node(RNColumnNode, rowIndex);
-                            var CNNode = new Node(CNColumnNode, rowIndex);
-                            var BNNode = new Node(BNColumnNode, rowIndex);
+                            var rcNode = new Node(rcColumnNode, rowIndex);
+                            var rnNode = new Node(rnColumnNode, rowIndex);
+                            var cnNode = new Node(cnColumnNode, rowIndex);
+                            var bnNode = new Node(bnColumnNode, rowIndex);
 
-                            RCNode.Left = BNNode;
-                            RCNode.Right = RNNode;
+                            rcNode.Left = bnNode;
+                            rcNode.Right = rnNode;
 
-                            RNNode.Left = RCNode;
-                            RNNode.Right = CNNode;
+                            rnNode.Left = rcNode;
+                            rnNode.Right = cnNode;
 
-                            CNNode.Left = RNNode;
-                            CNNode.Right = BNNode;
+                            cnNode.Left = rnNode;
+                            cnNode.Right = bnNode;
 
-                            BNNode.Left = CNNode;
-                            BNNode.Right = RCNode;
-
-
-                            RCNode.Down = RCColumnNode;
-                            RCNode.Up = RCColumnNode.Up;
-                            RCColumnNode.Up.Down = RCNode;
-                            RCColumnNode.Up = RCNode;
-
-                            RNNode.Down = RNColumnNode;
-                            RNNode.Up = RNColumnNode.Up;
-                            RNColumnNode.Up.Down = RNNode;
-                            RNColumnNode.Up = RNNode;
+                            bnNode.Left = cnNode;
+                            bnNode.Right = rcNode;
 
 
-                            CNNode.Down = CNColumnNode;
-                            CNNode.Up = CNColumnNode.Up;
-                            CNColumnNode.Up.Down = CNNode;
-                            CNColumnNode.Up = CNNode;
+                            rcNode.Down = rcColumnNode;
+                            rcNode.Up = rcColumnNode.Up;
+                            rcColumnNode.Up.Down = rcNode;
+                            rcColumnNode.Up = rcNode;
 
-                            BNNode.Down = BNColumnNode;
-                            BNNode.Up = BNColumnNode.Up;
-                            BNColumnNode.Up.Down = BNNode;
-                            BNColumnNode.Up = BNNode;
+                            rnNode.Down = rnColumnNode;
+                            rnNode.Up = rnColumnNode.Up;
+                            rnColumnNode.Up.Down = rnNode;
+                            rnColumnNode.Up = rnNode;
+
+
+                            cnNode.Down = cnColumnNode;
+                            cnNode.Up = cnColumnNode.Up;
+                            cnColumnNode.Up.Down = cnNode;
+                            cnColumnNode.Up = cnNode;
+
+                            bnNode.Down = bnColumnNode;
+                            bnNode.Up = bnColumnNode.Up;
+                            bnColumnNode.Up.Down = bnNode;
+                            bnColumnNode.Up = bnNode;
                         }
                     }
                 }
             }
         }
 
-        public void cover(Node c)
+        private void Cover(Node c)
         {
             c.Right.Left = c.Left;
             c.Left.Right = c.Right;
@@ -192,11 +204,11 @@ namespace CustomDlxLib
             }
         }
 
-        public void uncover(Node c)
+        private void Uncover(Node c)
         {
-            for (Node i = c.Up; i != c; i = i.Up)
+            for (var i = c.Up; i != c; i = i.Up)
             {
-                for (Node j = i.Left; j != i; j = j.Left)
+                for (var j = i.Left; j != i; j = j.Left)
                 {
                     j.Column.Size++;
                     j.Down.Up = j;
@@ -208,7 +220,7 @@ namespace CustomDlxLib
             c.Left.Right = c;
         }
 
-        public bool search()
+        private bool Search()
         {
             if (root.Right == root)
             {
@@ -216,7 +228,6 @@ namespace CustomDlxLib
             }
 
             ColumnNode selected = (ColumnNode)root.Right;
-            int cpt = 0;
             for (ColumnNode i = (ColumnNode)root.Right; i != root; i = (ColumnNode)i.Right)
             {
                 if (i.Size < selected.Size)
@@ -225,7 +236,7 @@ namespace CustomDlxLib
                 }
             }
 
-            cover(selected);
+            Cover(selected);
 
             for (Node i = selected.Down; i != selected; i = i.Down)
             {
@@ -233,10 +244,10 @@ namespace CustomDlxLib
 
                 for (Node j = i.Right; j != i; j = j.Right)
                 {
-                    cover(j.Column);
+                    Cover(j.Column);
                 }
 
-                if (search())
+                if (Search())
                 {
                     return true;
                 }
@@ -245,23 +256,23 @@ namespace CustomDlxLib
 
                 for (Node j = i.Left; j != i; j = j.Left)
                 {
-                    uncover(j.Column);
+                    Uncover(j.Column);
                 }
             }
 
-            uncover(selected);
+            Uncover(selected);
 
             return false;
         }
 
         public class Node
         {
-            public Node Left = null;
-            public Node Right = null;
-            public Node Up = null;
-            public Node Down = null;
-            public ColumnNode Column = null;
-            public int RowIndex = -1;
+            public Node Left;
+            public Node Right;
+            public Node Up;
+            public Node Down;
+            public readonly ColumnNode Column;
+            public readonly int RowIndex = -1;
 
             public Node(Node left, Node right, Node up, Node down, ColumnNode column, int rowIndex)
             {

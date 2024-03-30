@@ -15,9 +15,21 @@ namespace Sudoku.DancingLinks
         public SudokuGrid Solve(SudokuGrid s)
         {
             //launch the solver
+            // var start = DateTime.Now;
             byte[,] matrix = BuildDlxMatrix(s);
+            // var matrixTime = DateTime.Now - start;
+            
+            // start = DateTime.Now;
             IEnumerable<Solution> dlxSolution = new Dlx().Solve(matrix);
+            // var solveTime = DateTime.Now - start;
+
+            // start = DateTime.Now;
             SudokuGrid solution = DlxSolutionToSudokuGrid(dlxSolution.First(), matrix);
+            // var convertTime = DateTime.Now - start;
+
+            // using var file = new StreamWriter("base_time.csv", true);
+            // file.WriteLine($"{matrixTime.TotalMilliseconds},{solveTime.TotalMilliseconds},{convertTime.TotalMilliseconds}");
+
             return solution;
         }
 
