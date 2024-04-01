@@ -1,15 +1,14 @@
-using System.Runtime.InteropServices.JavaScript;
 using Sudoku.Shared;
 
 namespace CustomDlxLib
 {
-    public class CustomDlx
+    public class OptiInit
     {
         private SudokuGrid s;
         private ColumnNode root;
         private LinkedList<Node> solution = [];
 
-        public CustomDlx(SudokuGrid s)
+        public OptiInit(SudokuGrid s)
         {
             this.s = s;
         }
@@ -34,13 +33,13 @@ namespace CustomDlxLib
             }
             var convertTime = (DateTime.Now - start).TotalMilliseconds;
 
-            using var file = new StreamWriter("OurDlxLib_time.csv", true);
+            using var file = new StreamWriter("opti init_time.csv", true);
             file.WriteLine($"{initTime},{searchTime},{convertTime}");
         }
 
         private void Init()
         {
-            root = new ColumnNode(0);
+            root = new ColumnNode();
             root.Left = root;
             root.Right = root;
 
@@ -51,31 +50,31 @@ namespace CustomDlxLib
             // create row column constraints
             for (int i = 0; i < 324; i++)
             {
-                ColumnNode newColumn = new ColumnNode(0);
+                ColumnNode newColumn = new ColumnNode();
                 columnsNodes[columnsAppenderIdx++] = newColumn;
                 newColumn.Up = newColumn;
                 newColumn.Down = newColumn;
 
                 c.Right = newColumn;
                 newColumn.Left = c;
-                newColumn.Right = root;
-                root.Left = newColumn;
 
                 c = newColumn;
             }
+            columnsNodes[323].Right = root;
+            root.Left = columnsNodes[323];
 
             for (int i = 0; i < 9; i++)
             {
                 for (int j = 0; j < 9; j++)
                 {
-                    int blockIndex = ((i / 3) + ((j / 3) * 3));
+                    int blockIndex = i / 3 + j / 3 * 3;
                     int singleColumnIndex = 9 * j + i;
 
                     int value = s.Cells[i, j] - 1;
                     int rowIndex = 81 * j + 9 * i + value;
-                    int rowNumberConstraintIndex = 9 * 9 + 9 * j;
-                    int columnNumberConstraintIndex = 9 * 9 * 2 + 9 * i;
-                    int boxNumberConstraintIndex = 9 * 9 * 3 + blockIndex * 9;
+                    int rowNumberConstraintIndex = 81 + 9 * j;
+                    int columnNumberConstraintIndex = 162 + 9 * i;
+                    int boxNumberConstraintIndex = 243 + blockIndex * 9;
 
                     if (value >= 0)
                     {
@@ -228,13 +227,16 @@ namespace CustomDlxLib
             }
 
             ColumnNode selected = (ColumnNode)root.Right;
+            // int sum = 0;
             for (ColumnNode i = (ColumnNode)root.Right; i != root; i = (ColumnNode)i.Right)
             {
+                // sum += i.Size;
                 if (i.Size < selected.Size)
                 {
                     selected = i;
                 }
             }
+            // Console.WriteLine(sum);
 
             Cover(selected);
 
@@ -272,17 +274,7 @@ namespace CustomDlxLib
             public Node Up;
             public Node Down;
             public readonly ColumnNode Column;
-            public readonly int RowIndex = -1;
-
-            public Node(Node left, Node right, Node up, Node down, ColumnNode column, int rowIndex)
-            {
-                Left = left;
-                Right = right;
-                Up = up;
-                Down = down;
-                Column = column;
-                RowIndex = rowIndex;
-            }
+            public readonly int RowIndex;
 
             public Node()
             {
@@ -297,12 +289,7 @@ namespace CustomDlxLib
 
         public class ColumnNode : Node
         {
-            internal int Size = 0;
-
-            public ColumnNode(int size)
-            {
-                Size = size;
-            }
+            internal int Size;
         }
     }
 }
